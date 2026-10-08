@@ -50,7 +50,6 @@ export interface Draft {
   warnings: string[]
   timings_ms: Record<string, number>
   cache?: Record<string, { hits: number; misses: number }>
-  notes?: string // present when a saved draft is loaded by id
 }
 
 export interface PriceSummary {

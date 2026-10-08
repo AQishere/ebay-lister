@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ApiError, createDraft, getDraft, getMarket } from './api'
+import { ApiError, createDraft, getMarket } from './api'
 import { DraftCard } from './components/DraftCard'
 import { HowItWorks } from './components/HowItWorks'
 import { MarketPanel } from './components/MarketPanel'
@@ -10,11 +10,6 @@ import type { CategoryGroup, Draft, Market } from './types'
 const REPO_URL = 'https://github.com/AQishere/ebay-lister'
 
 type Theme = 'light' | 'dark'
-
-function draftIdFromPath(): string | null {
-  const m = window.location.pathname.match(/^\/d\/([a-f0-9]{24})\/?$/i)
-  return m ? m[1] : null
-}
 
 function readStoredTheme(): Theme | null {
   try {
@@ -75,31 +70,10 @@ export default function App() {
     [loadMarket],
   )
 
-  // Open a shared link (/d/<id>) and follow back/forward navigation.
+  // The site always opens on a clean landing page; old draft links (/d/<id>) go home.
   useEffect(() => {
-    async function fromUrl() {
-      const id = draftIdFromPath()
-      if (!id) {
-        setDraft(null)
-        setMarket(null)
-        return
-      }
-      setLoading(true)
-      setError(null)
-      try {
-        const d = await getDraft(id)
-        if (d.notes) setNotes(d.notes)
-        showDraft(d)
-      } catch (e) {
-        setError(e instanceof ApiError && e.status === 404 ? 'That draft does not exist.' : 'Could not load that draft.')
-      } finally {
-        setLoading(false)
-      }
-    }
-    void fromUrl()
-    window.addEventListener('popstate', fromUrl)
-    return () => window.removeEventListener('popstate', fromUrl)
-  }, [showDraft])
+    if (window.location.pathname !== '/') window.history.replaceState(null, '', '/')
+  }, [])
 
   // The condition chip is sent as a line of notes so the backend needs no new field.
   async function generate(text = notes, group = category) {
@@ -110,7 +84,6 @@ export default function App() {
     setError(null)
     try {
       const d = await createDraft(sent, group)
-      window.history.pushState(null, '', `/d/${d.draft_id}`)
       showDraft(d)
       requestAnimationFrame(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
     } catch (e) {

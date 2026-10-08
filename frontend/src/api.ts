@@ -32,6 +32,4 @@ function errorMessage(status: number, body: unknown): string {
 export const createDraft = (notes: string, category_group: CategoryGroup | null) =>
   request<Draft>('/api/drafts', { method: 'POST', body: JSON.stringify({ notes, category_group }) })
 
-export const getDraft = (id: string) => request<Draft>(`/api/drafts/${encodeURIComponent(id)}`)
-
 export const getMarket = (id: string) => request<Market>(`/api/drafts/${encodeURIComponent(id)}/market`)
