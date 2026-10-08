@@ -1,0 +1,5 @@
+# Only the API (api/ + app/) and the frontend are deployed to Vercel.
+tests/
+scripts/
+data/
+.github/
